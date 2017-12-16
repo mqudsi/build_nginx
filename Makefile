@@ -1,8 +1,6 @@
 NGXV=nginx-$(VERSION)
 
-all:
-	rm version.txt
-	+$(MAKE) version.txt
+all: .PHONY version.txt
 	+$(MAKE) upgrade VERSION=`cat version.txt`
 
 version.txt:
