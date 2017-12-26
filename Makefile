@@ -15,7 +15,7 @@ install:
 	# recursive make to force re-evaluation of $(NGXV)
 	+$(MAKE) _install VERSION=`cat version.txt`
 
-_install:
+_install: $(NGXV)/Makefile
 	+$(MAKE) -C $(NGXV) install
 
 $(NGXV).tar.gz:
@@ -28,7 +28,7 @@ $(NGXV)/objs/nginx: $(NGXV)/Makefile
 	+$(MAKE) -C $(NGXV)
 
 $(NGXV)/Makefile: $(NGXV) ngx_cache_purge ngx_brotli zlib
-	rm $@
+	rm -f $@
 	cd $(NGXV) && ./configure --prefix=/usr/local/etc/nginx --conf-path=/usr/local/etc/nginx/nginx.conf --sbin-path=/usr/local/sbin/nginx --pid-path=/var/run/nginx.pid --error-log-path=/var/log/nginx/error.log --http-client-body-temp-path=/var/tmp/nginx/client_body_temp --http-fastcgi-temp-path=/var/tmp/nginx/fastcgi_temp --http-proxy-temp-path=/var/tmp/nginx/proxy_temp --http-scgi-temp-path=/var/tmp/nginx/scgi_temp --http-uwsgi-temp-path=/var/tmp/nginx/uwsgi_temp --http-log-path=/var/log/nginx/access.log --user=www-data --group=www-data --with-http_ssl_module --with-http_realip_module --with-http_stub_status_module --with-http_v2_module --with-http_sub_module --add-module=../ngx_cache_purge --with-http_image_filter_module --with-http_gunzip_module --with-http_gzip_static_module --with-file-aio --with-pcre --with-pcre-jit --with-threads --with-google_perftools_module --add-module=../ngx_brotli --with-cc-opt=" -Wno-error -Ofast -funroll-loops -march=native -ffast-math " --with-zlib=../zlib/ --with-zlib-opt="-O3 -march=native"
 
 zlib:
