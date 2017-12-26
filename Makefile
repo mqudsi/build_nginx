@@ -9,7 +9,10 @@ version.txt! #force update checks, always
 
 upgrade: $(NGXV)/objs/nginx
 
-install: version.txt
+install:
+	# no hard Makefile dependency on version.txt to atomically install whatever was built
+	@test -s version.txt || (echo "Run `make` before installing!" 1>&2 && false)
+	# recursive make to force re-evaluation of $(NGXV)
 	+$(MAKE) _install VERSION=`cat version.txt`
 
 _install:
