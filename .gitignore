@@ -1,0 +1,6 @@
+*.tar.gz
+nginx-*/
+ngx_brotli
+ngx_cache_purge
+version.txt
+zlib
