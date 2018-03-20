@@ -53,7 +53,9 @@ ngx_brotli:
 	cd ngx_brotli; git submodule update --init; cd -
 	touch $@
 
-update:
+update: .update
+
+.update:
 	cd ngx_brotli; git pull; git submodule update --init; cd -
 	cd zlib; git pull; git submodule update --init; cd -
 	cd ngx_cache_purge; git pull; git submodule update --init; cd -
