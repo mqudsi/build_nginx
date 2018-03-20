@@ -58,3 +58,7 @@ update:
 	cd zlib; git pull; git submodule update --init; cd -
 	cd ngx_cache_purge; git pull; git submodule update --init; cd -
 	touch $@
+
+restart:
+	killall -9 nginx
+	nginx
