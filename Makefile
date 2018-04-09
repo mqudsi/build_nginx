@@ -6,7 +6,6 @@ all: version.txt
 version.txt! #force update checks, always
 	curl https://nginx.org/en/CHANGES | grep "Changes with" | egrep -o "[0-9]+\.[0-9]+\.[0-9]+" | head -n1 > version.txt
 	@test -s version.txt || (echo "Failed to properly parse CHANGELOG!" 1>&2 && false)
-	touch $@
 
 upgrade: $(NGXV)/objs/nginx
 
@@ -21,13 +20,12 @@ _install: $(NGXV)/Makefile
 
 $(NGXV).tar.gz:
 	wget https://nginx.org/download/nginx-$(VERSION).tar.gz
-	touch $@
 
 $(NGXV): $(NGXV).tar.gz
 	tar xzvf $?
 	touch $@
 
-$(NGXV)/objs/nginx: $(NGXV)/Makefile ngx_brotli ngx_cache_purge zlib
+$(NGXV)/objs/nginx: $(NGXV)/Makefile ngx_brotli ngx_cache_purge zlib .update
 	+$(MAKE) -C $(NGXV)
 	touch $@
 
@@ -41,7 +39,7 @@ zlib:
 	cp ./_BSDmakefile ./$@/BSDmakefile
 	# nginx calls `make distclean` in zlib before calling zlib's ./configure,
 	# but cloudflare's zlib has no Makefile until configured
-	cd $@; ./configure; cd -
+	zlib/configure
 	touch $@
 
 ngx_cache_purge:
@@ -55,7 +53,7 @@ ngx_brotli:
 
 update: .update
 
-.update:
+.update: zlib ngx_cache_purge ngx_brotli
 	cd ngx_brotli; git pull; git submodule update --init; cd -
 	cd zlib; git pull; git submodule update --init; cd -
 	cd ngx_cache_purge; git pull; git submodule update --init; cd -
@@ -64,3 +62,10 @@ update: .update
 restart:
 	killall -9 nginx
 	nginx
+
+clean: version.txt
+	+$(MAKE) _clean VERSION=`cat version.txt`
+
+_clean:
+	rm $(NGXV)/Makefile
+	rm -rf $(NGXV)
