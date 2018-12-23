@@ -2,13 +2,13 @@ NGXV=nginx-$(VERSION)
 
 all: upgrade
 
-version.txt:
+version.txt!
 	curl https://nginx.org/en/CHANGES | grep "Changes with" | egrep -o "[0-9]+\.[0-9]+\.[0-9]+" | head -n1 > version.txt
 	@test -s version.txt || (echo "Failed to properly parse CHANGELOG!" 1>&2 && false)
 
 .PHONY: upgrade
 upgrade! .update
-	+$(MAKE) .upgrade VERSION=`cat version.txt`
+	@+$(MAKE) .upgrade VERSION=`cat version.txt`
 
 .upgrade: $(NGXV)/objs/nginx
 
