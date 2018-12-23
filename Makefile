@@ -74,13 +74,15 @@ clean: version.txt
 _clean:
 	rm $(NGXV)/Makefile
 	rm -rf $(NGXV)
+	rm -rf nginx-*
+	rm -rf *.tar.gz
 
-.for url in https://neosmart.net/ https://neosmart.net/php.php https://neosmart.net/favicon.ico https://neosmart.net/blog/ https://neosmart.net/forums/ https://neosmart.net/EasyRE/ https://neosmart.net/EasyBCD/ https://neosmart.net/status.php
+.for url in https://neosmart.net/ https://neosmart.net/php.php https://neosmart.net/favicon.ico https://neosmart.net/blog/ https://neosmart.net/forums/ https://neosmart.net/EasyRE/ https://neosmart.net/EasyRE/Admin/HealthCheck https://neosmart.net/EasyBCD/ https://neosmart.net/status.php
 
 TEST_TARGETS += test_$(url:hash)
 test_$(url:hash):
 	@echo Testing: "$(url)"
-	@test '$(:!curl -s -o /dev/null -w "%{http_code}" $(url)!)' -eq 200 || echo "Url did not respond with HTTP 200!"
+	@echo @test $(:!curl -s -o /dev/null -w "%{http_code}" "$(url)"!) -eq 200 || echo "Url did not respond with HTTP 200!"
 
 .endfor
 
