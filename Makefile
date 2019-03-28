@@ -18,8 +18,11 @@ install:
 	# recursive make to force re-evaluation of $(NGXV)
 	+$(MAKE) _install VERSION=`cat version.txt`
 
+MMDB = $(:!tar -tvf GeoLite2-Country.tar.gz | egrep -o '[^ ]+\.mmdb'!)
 _install: $(NGXV)/Makefile
 	+$(MAKE) -C $(NGXV) install
+	mkdir -p /var/db/geoip2
+	install $(MMDB) /var/db/geoip2
 
 $(NGXV).tar.gz:
 	wget https://nginx.org/download/nginx-$(VERSION).tar.gz
@@ -33,7 +36,7 @@ $(NGXV)/objs/nginx: $(NGXV)/Makefile
 	touch $@
 
 $(NGXV)/Makefile: $(NGXV)
-	cd $(NGXV); ./configure --prefix=/usr/local/etc/nginx --conf-path=/usr/local/etc/nginx/nginx.conf --sbin-path=/usr/local/sbin/nginx --pid-path=/var/run/nginx.pid --error-log-path=/var/log/nginx/error.log --http-client-body-temp-path=/var/tmp/nginx/client_body_temp --http-fastcgi-temp-path=/var/tmp/nginx/fastcgi_temp --http-proxy-temp-path=/var/tmp/nginx/proxy_temp --http-scgi-temp-path=/var/tmp/nginx/scgi_temp --http-uwsgi-temp-path=/var/tmp/nginx/uwsgi_temp --http-log-path=/var/log/nginx/access.log --user=www-data --group=www-data --with-http_ssl_module --with-http_realip_module --with-http_stub_status_module --with-http_v2_module --with-http_sub_module --add-module=../ngx_cache_purge --with-http_image_filter_module --with-http_gunzip_module --with-http_gzip_static_module --with-file-aio --with-pcre --with-pcre-jit --with-threads --with-google_perftools_module --add-module=../ngx_brotli --with-cc-opt=" -Wno-error -Ofast -funroll-loops -march=native -ffast-math " --with-zlib=../zlib/ --with-zlib-opt="-O3 -march=native"; cd -
+	cd $(NGXV); env CFLAGS="-I/usr/local/include" ./configure --prefix=/usr/local/etc/nginx --conf-path=/usr/local/etc/nginx/nginx.conf --sbin-path=/usr/local/sbin/nginx --pid-path=/var/run/nginx.pid --error-log-path=/var/log/nginx/error.log --http-client-body-temp-path=/var/tmp/nginx/client_body_temp --http-fastcgi-temp-path=/var/tmp/nginx/fastcgi_temp --http-proxy-temp-path=/var/tmp/nginx/proxy_temp --http-scgi-temp-path=/var/tmp/nginx/scgi_temp --http-uwsgi-temp-path=/var/tmp/nginx/uwsgi_temp --http-log-path=/var/log/nginx/access.log --user=www-data --group=www-data --with-http_ssl_module --with-http_realip_module --with-http_stub_status_module --with-http_v2_module --with-http_sub_module --add-module=../ngx_cache_purge --with-http_image_filter_module --with-http_gunzip_module --with-http_gzip_static_module --with-file-aio --with-pcre --with-pcre-jit --with-threads --with-google_perftools_module --add-module=../ngx_brotli --with-cc-opt=" -Wno-error -Ofast -funroll-loops -march=native -ffast-math " --with-zlib=../zlib/ --with-zlib-opt="-O3 -march=native" --add-module=../ngx_http_geoip2_module --with-ld-opt="-L/usr/local/lib" ; cd -
 	touch $@
 
 zlib:
@@ -51,17 +54,30 @@ ngx_cache_purge:
 
 ngx_brotli:
 	git clone git@github.com:neosmart/ngx_brotli.git
-	cd ngx_brotli; git submodule update --init; cd -
+	cd $@; git submodule update --init; cd -
 	touch $@
+
+ngx_http_geoip2_module:
+	git clone https://github.com/leev/ngx_http_geoip2_module
+	cd $@; git submodule update --init; cd -
+	touch $@
+
+GeoLite2-Country.tar.gz:
+	rm -f $@
+	wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz
+
+$(MMDB): GeoLite2-Country.tar.gz
+	tar -xvf $? $(MMDB)
 
 .PHONY: update
 update!
 	cd ngx_brotli; git pull; git submodule update --init; cd -
 	cd zlib; git pull; git submodule update --init; cd -
 	cd ngx_cache_purge; git pull; git submodule update --init; cd -
+	cd ngx_http_geoip2_module; git pull; git submodule update --init; cd -
 	touch .update
 
-.update: zlib ngx_cache_purge ngx_brotli version.txt
+.update: zlib ngx_cache_purge ngx_brotli ngx_http_geoip2_module GeoLite2-Country.tar.gz $(MMDB) version.txt
 	+$(MAKE) update
 
 restart:
