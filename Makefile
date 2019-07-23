@@ -72,9 +72,9 @@ $(MMDB): GeoLite2-Country.tar.gz
 .PHONY: update
 update!
 	cd ngx_brotli; git pull; git submodule update --init; cd -
-	cd zlib; git pull; git submodule update --init; cd -
-	cd ngx_cache_purge; git pull; git submodule update --init; cd -
-	cd ngx_http_geoip2_module; git pull; git submodule update --init; cd -
+	cd zlib; git pull --rebase --autostash; git submodule update --init; cd -
+	cd ngx_cache_purge; git pull --rebase --autostash; git submodule update --init; cd -
+	cd ngx_http_geoip2_module; git pull --rebase --autostash; git submodule update --init; cd -
 	touch .update
 
 .update: zlib ngx_cache_purge ngx_brotli ngx_http_geoip2_module GeoLite2-Country.tar.gz $(MMDB) version.txt
