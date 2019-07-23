@@ -98,7 +98,7 @@ _clean:
 TEST_TARGETS += test_$(url:hash)
 test_$(url:hash):
 	@echo Testing: "$(url)"
-	@echo @test $(:!curl -s -o /dev/null -w "%{http_code}" "$(url)"!) -eq 200 || echo "Url did not respond with HTTP 200!"
+	@test $(:!curl -s -o /dev/null -w "%{http_code}" "$(url)"!) -eq 200 || (echo "Url did not respond with HTTP 200!" 1>&2 && false)
 
 .endfor
 
