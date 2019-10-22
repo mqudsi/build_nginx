@@ -81,6 +81,9 @@ update!
 	+$(MAKE) update
 
 restart:
+	# First test the configuration to make sure it'll work for zero downtime
+	nginx -s reload
+	nginx -s stop
 	killall -9 nginx
 	nginx
 
