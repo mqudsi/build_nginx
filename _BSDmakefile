@@ -4,7 +4,7 @@ GMAKE = "gmake"
 JARG = -j$(.MAKE.JOBS)
 .endif
 
-#by default bmake will cd into ./obj first
+# by default bmake will cd into ./obj first
 .OBJDIR: ./
 
 .DONE .DEFAULT: .SILENT
@@ -16,3 +16,5 @@ JARG = -j$(.MAKE.JOBS)
 	fi
 
 .PHONY: all
+
+distclean:
