@@ -27,7 +27,7 @@ MMDB = $(:!tar -tvf GeoLite2-Country.tar.gz | egrep -o '[^ ]+\.mmdb'!)
 _install: $(NGXV)/Makefile
 	+$(MAKE) -C $(NGXV) install
 	mkdir -p /var/db/geoip2
-	install $(MMDB) /var/db/geoip2
+	# install $(MMDB) /var/db/geoip2
 
 $(NGXV).tar.gz:
 	wget https://nginx.org/download/nginx-$(VERSION).tar.gz
@@ -73,8 +73,8 @@ ngx_http_geoip2_module:
 	touch $@
 
 GeoLite2-Country.tar.gz:
-	rm -f $@
-	wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz
+	# rm -f $@
+	# wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz
 
 $(MMDB): GeoLite2-Country.tar.gz
 	tar -xvf $? $(MMDB)
