@@ -23,7 +23,6 @@ install:
 	# recursive make to force re-evaluation of $(NGXV)
 	+$(MAKE) _install VERSION=`cat version.txt`
 
-MMDB = $(:!tar -tvf GeoLite2-Country.tar.gz | egrep -o '[^ ]+\.mmdb'!)
 _install: $(NGXV)/Makefile
 	+$(MAKE) -C $(NGXV) install
 	mkdir -p /var/db/geoip2
@@ -72,13 +71,6 @@ ngx_http_geoip2_module:
 	cd $@; git submodule update --init; cd -
 	touch $@
 
-GeoLite2-Country.tar.gz:
-	# rm -f $@
-	# wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz
-
-$(MMDB): GeoLite2-Country.tar.gz
-	tar -xvf $? $(MMDB)
-
 .PHONY: update
 update! $(MODULES)
 	# cd ngx_brotli; git pull; git submodule update --init; cd -
@@ -87,7 +79,7 @@ update! $(MODULES)
 	cd ngx_http_geoip2_module; git pull --rebase --autostash; git submodule update --init; cd -
 	touch .update
 
-.update: GeoLite2-Country.tar.gz $(MMDB) version.txt
+.update: version.txt
 	+$(MAKE) update
 
 restart:
